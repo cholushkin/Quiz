@@ -1,10 +1,11 @@
-﻿using UnityEngine;
+﻿using Alg;
+using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 
 namespace Quiz
 {
-    public class LoadingIcon : MonoBehaviour
+    public class LoadingIcon : Singleton<LoadingIcon>
     {
         void Start()
         {

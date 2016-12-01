@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Alg;
 using SimpleFirebaseUnity;
 using SimpleFirebaseUnity.MiniJSON;
 using UnityEngine.Assertions;
@@ -124,6 +125,7 @@ namespace Quiz
 
         private Firebase DataBase;
         private Dictionary<int, Data> CachedData;
+        private int CurrentId;
 
         public FireBaseDataAcessor()
         {
@@ -146,6 +148,7 @@ namespace Quiz
             CachedData.Add(id, data);
 
             // request to fill data
+            CurrentId = id;
             DataBase.Child("1",true).Child("pack00", true).Child(id.ToString(), true).GetValue(FirebaseParam.Empty.OrderByKey().LimitToFirst(6));
 
             return data;
@@ -170,17 +173,21 @@ namespace Quiz
         void GetFailHandler(Firebase sender, FirebaseError err)
         {
             Debug.LogError("[ERR] Get from key: <" + sender.FullKey + ">,  " + err.Message + " (" + (int)err.Status + ")");
+
+            // resend request on connetion problems
+            DataBase.Child("1", true).Child("pack00", true).Child(CurrentId.ToString(), true).GetValue(FirebaseParam.Empty.OrderByKey().LimitToFirst(6));
         }
 
 
     }
 
 
-    public class DataAccessor : MonoBehaviour
+    public class DataAccessor : Singleton<DataAccessor>
     {
         private IDataAccessor DAccessor;
         private Topscore TopScoreAccessor;
-        private Data Data;
+        [HideInInspector]
+        public Data Data; // todo: incapsulate
 
         void Start()
         {
@@ -188,13 +195,10 @@ namespace Quiz
             TopScoreAccessor = new Topscore();
         }
 
-        // Update is called once per frame
         [ContextMenu("GetRandomData")]
         public void GetRandomData()
         {
             // todo: make unique random list [0..424]
-
-
             Data = DAccessor.GetData(Random.Range(0, 425));
         }
 
