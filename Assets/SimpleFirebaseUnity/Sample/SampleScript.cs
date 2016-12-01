@@ -230,7 +230,7 @@ public class SampleScript : MonoBehaviour
         DoDebug("'broadcasts' node is deleted silently.");
         firebaseQueue.AddQueueDelete(firebase.Child("broadcasts"));
         firebaseQueue.AddQueueGet(firebase);
-
+        
         // ~~(-.-)~~
         yield return null;
         DoDebug("==== Wait for seconds 15f ======");

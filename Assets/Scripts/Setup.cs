@@ -4,7 +4,9 @@ using System.Collections;
 // todo: as scriptable object
 public static class Setup 
 {
-    public static int LifesCount = 2;
-    public static int WinCountInRaw = 5;
+    public const int LifesCount = 2;
+    public const int WinCountInRaw = 5;
+    public const float QuestionTimeLimit = 5f;
+    public const int MaxHighscores = 10;
 
 }
