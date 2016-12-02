@@ -1,12 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class AnswerItem : MonoBehaviour
-{
-    public Text Text;
 
-    void Reset()
+namespace Quiz.GUI
+{
+    public class AnswerItem : MonoBehaviour
     {
-        Text = transform.FindChild("Text").GetComponent<Text>();
+        public Text Text;
+
+
+        private void Reset()
+        {
+            Text = transform.FindChild("Text").GetComponent<Text>();
+        }
     }
 }

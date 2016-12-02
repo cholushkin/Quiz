@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 using Alg;
 using SimpleFirebaseUnity;
 using SimpleFirebaseUnity.MiniJSON;
@@ -10,6 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace Quiz
 {
+    #region score
     public class ScoreData
     {
         public bool IsLoading = true;
@@ -84,20 +84,17 @@ namespace Quiz
 
                 ScoreTable.Add(dic);
             }
-
         }
-
 
         void SetOKHandler(Firebase sender, DataSnapshot snapshot)
         {
             Debug.Log("[OK] Set from key: <" + sender.FullKey + ">");
         }
 
-
         void GetFailHandler(Firebase sender, FirebaseError err)
         {
             Debug.LogError("[ERR] Get from key: <" + sender.FullKey + ">,  " + err.Message + " (" + (int)err.Status + ")");
-            SendRequest();
+            // SendRequest();
         }
 
         public ScoreData UpdateLeaderBoard(Account acc)
@@ -121,10 +118,9 @@ namespace Quiz
             firebaseQueue.AddQueueSet(DataBase.Child("0"), ScoreTable);
         }
     }
-
-
-
-
+    #endregion
+    
+    #region questions
     [Serializable]
     public class Data
     {
@@ -142,7 +138,7 @@ namespace Quiz
         private static string DbUrl = "digairquiz.firebaseio.com";
 
         private Firebase DataBase;
-        private Dictionary<int, Data> CachedData;
+        private Data OutputData;
         private int CurrentId;
 
         public FireBaseDataAcessor()
@@ -150,26 +146,15 @@ namespace Quiz
             DataBase = Firebase.CreateNew(DbUrl);
             DataBase.OnGetSuccess += GetOKHandler;
             DataBase.OnGetFailed += GetFailHandler;
-
-            CachedData = new Dictionary<int, Data>();
         }
 
+        // get question data
         public Data GetData(int id)
         {
-            if (CachedData.ContainsKey(id))
-                return CachedData[id];
-
-            // create data
-            var data = new Data();
-
-            // put in cache
-            CachedData.Add(id, data);
-
-            // request to fill data
+            OutputData = new Data();
             CurrentId = id;
             DataBase.Child("1", true).Child("pack00", true).Child(id.ToString(), true).GetValue(FirebaseParam.Empty.OrderByKey().LimitToFirst(6));
-
-            return data;
+            return OutputData;
         }
 
 
@@ -180,13 +165,11 @@ namespace Quiz
 
             int rID = Convert.ToInt32(sender.Key);
 
-
-            // find in cached quiz questions and fill it up
-            Assert.IsTrue(CachedData.ContainsKey(rID));
             var quizQuestion = JsonUtility.FromJson<QuizQuestion>(snapshot.RawJson);
-            CachedData[rID].IsLoading = false;
-            CachedData[rID].Question = quizQuestion;
+            OutputData.IsLoading = false;
+            OutputData.Question = quizQuestion;
         }
+
 
         void GetFailHandler(Firebase sender, FirebaseError err)
         {
@@ -198,8 +181,9 @@ namespace Quiz
 
 
     }
+    #endregion
 
-
+    #region singleton
     public class DataAccessor : Singleton<DataAccessor>
     {
         private IDataAccessor DAccessor;
@@ -226,19 +210,6 @@ namespace Quiz
             // todo: make unique random list [0..424]
             Data = DAccessor.GetData(Random.Range(0, 425));
         }
-
-#if DEBUG1
-        void OnGUI()
-        {
-            if (GUILayout.Button("get random question"))
-                GetRandomData();
-            if (GUILayout.Button("print top scores"))
-                TopScoreAccessor.PutScore("",666);
-            if (Data != null)
-                GUILayout.Label(Data.IsLoading ? "Loading..." : JsonUtility.ToJson((object)Data.Question));
-        }
-#endif
-
     }
-
+    #endregion
 }

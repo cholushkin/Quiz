@@ -1,30 +1,34 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.Assertions;
 
-public class AskWindow : MonoBehaviour
+namespace Quiz.GUI
 {
-    public bool Result;
-    private int Slot;
-
-    public void OnModalResult(bool res)
+    // todo: rewrite, just provide result 
+    public class AskWindow : MonoBehaviour
     {
-        Result = res;
-        gameObject.SetActive(false);
+        public bool Result;
+        private int Slot;
 
-        // todo: use delegate callback. Hardcode for now
-        if (Result)
+
+        public void OnModalResult(bool res)
         {
-            Debug.Log("delete " + Slot);
-            var accState = GameManager.Instance.CurMode as StateAccounts;
-            Assert.IsNotNull(accState);
-            accState.Accounts[Slot].Delete();
-            accState.UpdateViews();
-        }
-    }
+            Result = res;
+            gameObject.SetActive(false);
 
-    public void SetOnResult(int slot)
-    {
-        Slot = slot;
+            if (Result)
+            {
+                Debug.Log("delete " + Slot);
+                var accState = GameManager.Instance.CurMode as StateAccounts;
+                Assert.IsNotNull(accState);
+                accState.Accounts[Slot].Delete();
+                accState.UpdateViews();
+            }
+        }
+
+
+        public void SetOnResult(int slot)
+        {
+            Slot = slot;
+        }
     }
 }

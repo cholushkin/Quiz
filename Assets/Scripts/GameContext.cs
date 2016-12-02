@@ -1,26 +1,30 @@
 ﻿using UnityEngine;
-using System.Collections;
 using Alg;
 using Quiz;
 
-public class GameContext : Singleton<GameContext>
+
+namespace Quiz
 {
-    public Account CurAccount;
-
-
-    public int SessionLifesCount;
-    public int SessionCorrectAnswerChain;
-
-    public void StartNewSession()
+    public class GameContext : Singleton<GameContext>
     {
-        SessionLifesCount = Setup.LifesCount;
-        SessionCorrectAnswerChain = 0;
+        public Account CurAccount;
+
+
+        public int SessionLifesCount;
+        public int SessionCorrectAnswerChain;
+
+        public void StartNewSession()
+        {
+            SessionLifesCount = Setup.LifesCount;
+            SessionCorrectAnswerChain = 0;
+        }
+
+
+        [ContextMenu("Reset Save")]
+        public void ResetSave()
+        {
+            PlayerPrefs.DeleteAll();
+        }
     }
 
-
-    [ContextMenu("Reset Save")]
-    public void ResetSave()
-    {
-        PlayerPrefs.DeleteAll();
-    }
 }

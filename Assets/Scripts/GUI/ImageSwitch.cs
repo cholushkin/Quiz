@@ -1,14 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class ImageSwitch : MonoBehaviour
+namespace Quiz.GUI
 {
-    public Image Destination;
-    public Texture2D[] ImagePool;
-
-    public void Switch(int index)
+    public class ImageSwitch : MonoBehaviour
     {
-        var tex = ImagePool[index];
-        Destination.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+        public Image Destination;
+        public Texture2D[] ImagePool;
+
+        public void Switch(int index)
+        {
+            var tex = ImagePool[index];
+            Destination.overrideSprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height),
+                new Vector2(0.5f, 0.5f));
+        }
     }
 }

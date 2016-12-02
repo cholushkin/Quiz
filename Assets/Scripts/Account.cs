@@ -47,7 +47,6 @@ namespace Quiz
             Data.Duid = SystemInfo.deviceUniqueIdentifier;
         }
 
-     
         public Account Load()
         {
             var json = PlayerPrefs.GetString("Slot" + Slot);
@@ -73,6 +72,4 @@ namespace Quiz
             return string.IsNullOrEmpty(Data.Name);
         }
     }
-
-
 }

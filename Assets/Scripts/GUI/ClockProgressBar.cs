@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class ClockProgressBar : MonoBehaviour
+namespace Quiz.GUI
 {
-    public float Max;
-    public float CurVal;
-    public Image Image;
-
-    public void Set(float val)
+    public class ClockProgressBar : MonoBehaviour
     {
-        CurVal = val;
-        Image.fillAmount = CurVal / Max;
-    }
+        public float Max;
+        public float CurVal;
+        public Image Image;
 
-    // todo: animation
+        public void Set(float val)
+        {
+            CurVal = val;
+            Image.fillAmount = CurVal/Max;
+        }
+    }
 }

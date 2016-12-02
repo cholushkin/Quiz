@@ -1,17 +1,20 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class LifeProgressBar : MonoBehaviour
+namespace Quiz.GUI
 {
-    public int Max;
-    public int CurVal;
-    public Image Image;
- 
-    public void Set(int val)
+    public class LifeProgressBar : MonoBehaviour
     {
-        CurVal = val;
-        Image.fillAmount = CurVal/(float)Max;
-    }
+        public int Max;
+        public int CurVal;
+        public Image Image;
 
-    // todo: animation
+        public void Set(int val)
+        {
+            CurVal = val;
+            Image.fillAmount = CurVal/(float) Max;
+        }
+
+        // todo: animation
+    }
 }
