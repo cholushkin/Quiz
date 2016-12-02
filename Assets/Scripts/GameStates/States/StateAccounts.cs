@@ -58,4 +58,10 @@ public class StateAccounts : IAppState
         Debug.Log("intent to del slot:" + slot);
         GameManager.Instance.ShowAskWindow(slot);
     }
+
+    void OnGUI()
+    {
+        GUI.contentColor = Color.black;
+        GUILayout.Label(Setup.VersionString);
+    }
 }

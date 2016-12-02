@@ -1,8 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Alg;
 using SimpleFirebaseUnity;
@@ -12,31 +10,19 @@ using Random = UnityEngine.Random;
 
 namespace Quiz
 {
-    [Serializable]
-    public class Score
+    public class ScoreData
     {
-        
+        public bool IsLoading = true;
+        public List<Dictionary<string, object>> ScoreTable;
     }
-    [Serializable]
-    public class ConvertTempStruc
-    {
-        public Dictionary<string, object>[] sss;
-    }
-
-    //public class RootObject
-    //{
-    //    public int duid;
-    //    public string name;
-    //    public int score;
-    //}
-
 
     public class Topscore
     {
         private static string DbUrl = "digairquiz.firebaseio.com";
         private Firebase DataBase;
-        private int CurScore;
-        private List<Dictionary<string,object>> ScoreTable = new List<Dictionary<string, object>>();
+        private List<Dictionary<string, object>> ScoreTable = new List<Dictionary<string, object>>();
+        private ScoreData ScoreDataOutput;
+        private Account Acc;
 
         public Topscore()
         {
@@ -50,31 +36,57 @@ namespace Quiz
         {
             Debug.Log("[OK] Get from key: <" + sender.FullKey + ">");
             Debug.Log("[OK] Raw Json: " + snapshot.RawJson);
+
+            // custom convertion
             var tmp = Json.Deserialize(snapshot.RawJson) as List<object>;
-
-            
-            //custom covertion
             foreach (var obj in tmp)
+                ScoreTable.Add(obj as Dictionary<string, object>);
+
+            Modify();
+            ScoreDataOutput.IsLoading = false;
+        }
+
+        private void Modify() // todo: rewrite ugly code
+        {
+            // var a = ScoreTable.OrderBy(x => (System.Int64) x["score"]).ToList();
+            // analize list
+            int minScoreIndex = 0;
+            int accIndex = -1;
+            Int64 minVal = (System.Int64)(ScoreTable[0]["score"]);
+            for(int index = 0; index < ScoreTable.Count; ++index)
             {
-                ScoreTable.Add(obj as Dictionary<string,object>);
+                var score = (Int64)ScoreTable[index]["score"];
+                if (score < minVal)
+                {
+                    minVal = score;
+                    minScoreIndex = index;
+                }
+
+                if ((string)ScoreTable[index]["name"] == Acc.Data.Name && (string)ScoreTable[index]["duid"] == Acc.Data.Duid)
+                    accIndex = index;
             }
-            ScoreTable[0]["name"] = "asdasd";
-            //CurScoreTable = JsonUtility.FromJson<ScoreTable>(snapshot.RawJson);
-            //CurScoreTable.scores = CurScoreTable.scores.OrderBy(x => x.score).ToArray();
 
-            //// modify table
-            //if (CurScoreTable.scores[0].score < CurScore)
-            //{
-            //    CurScoreTable.scores[0].score = CurScore;
-            //}
+            bool canPutIn = Acc.Data.CalcScores() > minVal;
 
-            //foreach (var score in CurScoreTable.scores)
-            //{
-            //    if (score.score < CurScore )
-            //        score
-            //}
+            if (canPutIn)
+            {
+                // prepare dict for the cur acc
+                var dic = new Dictionary<string, object>();
+                dic["duid"] = Acc.Data.Duid;
+                dic["name"] = Acc.Data.Name;
+                dic["score"] = Acc.Data.CalcScores();
+
+                // put the new value
+                if(accIndex!=-1)
+                    ScoreTable.RemoveAt(accIndex);
+                else
+                    ScoreTable.RemoveAt(minScoreIndex);
+
+                ScoreTable.Add(dic);
+            }
 
         }
+
 
         void SetOKHandler(Firebase sender, DataSnapshot snapshot)
         {
@@ -87,21 +99,21 @@ namespace Quiz
             Debug.LogError("[ERR] Get from key: <" + sender.FullKey + ">,  " + err.Message + " (" + (int)err.Status + ")");
         }
 
-        public void DbgPrintScore()
+        public ScoreData UpdateLeaderBoard(Account acc)
         {
-            DataBase.Child("0", true).GetValue();
-        }
-
-        public void PutScore(string userName, int score)
-        {
-            CurScore = score;
+            Acc = acc;
             ScoreTable = new List<Dictionary<string, object>>();
+
+            ScoreDataOutput = new ScoreData();
+            ScoreDataOutput.IsLoading = true;
+            ScoreDataOutput.ScoreTable = ScoreTable;
+
             FirebaseQueue firebaseQueue = new FirebaseQueue();
             firebaseQueue.AddQueueGet(DataBase.Child("0", true), FirebaseParam.Empty.OrderByKey().LimitToFirst(10));
-            firebaseQueue.AddQueueSet(DataBase.Child("0"),ScoreTable);
+            firebaseQueue.AddQueueSet(DataBase.Child("0"), ScoreTable);
 
+            return ScoreDataOutput;
         }
- 
     }
 
 
@@ -149,7 +161,7 @@ namespace Quiz
 
             // request to fill data
             CurrentId = id;
-            DataBase.Child("1",true).Child("pack00", true).Child(id.ToString(), true).GetValue(FirebaseParam.Empty.OrderByKey().LimitToFirst(6));
+            DataBase.Child("1", true).Child("pack00", true).Child(id.ToString(), true).GetValue(FirebaseParam.Empty.OrderByKey().LimitToFirst(6));
 
             return data;
         }
@@ -187,12 +199,19 @@ namespace Quiz
         private IDataAccessor DAccessor;
         private Topscore TopScoreAccessor;
         [HideInInspector]
-        public Data Data; // todo: incapsulate
+        public Data Data; // todo: incapsulate and use delegates instead isLoading
+
+        public ScoreData ScoreData;
 
         void Start()
         {
             DAccessor = new FireBaseDataAcessor();
             TopScoreAccessor = new Topscore();
+        }
+
+        public void UpdateLeaderBoard(Account acc)
+        {
+            ScoreData = TopScoreAccessor.UpdateLeaderBoard(acc);
         }
 
         [ContextMenu("GetRandomData")]

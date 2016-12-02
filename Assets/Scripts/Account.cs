@@ -18,13 +18,13 @@ namespace Quiz
             public int NonPerfectWins;
             public int PerfectWins;
 
-            public int CalcScores()
+            public Int64 CalcScores()
             {
                 int gamePlayed = NonPerfectWins + PerfectWins + OvertimeLosses;
                 if (gamePlayed == 0)
                     return 0;
                 float eff = (OvertimeLosses + (2 * PerfectWins + NonPerfectWins)) / (float)(2 * gamePlayed);
-                return (int)(eff * (NonPerfectWins + PerfectWins) * 1000);
+                return (Int64)(eff * (NonPerfectWins + PerfectWins) * 1000);
             }
         }
 
