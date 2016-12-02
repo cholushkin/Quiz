@@ -46,7 +46,7 @@ namespace Quiz
             ScoreDataOutput.IsLoading = false;
         }
 
-        private void Modify() // todo: rewrite ugly code
+        private void Modify()
         {
             // var a = ScoreTable.OrderBy(x => (System.Int64) x["score"]).ToList();
             // analize list
@@ -97,6 +97,7 @@ namespace Quiz
         void GetFailHandler(Firebase sender, FirebaseError err)
         {
             Debug.LogError("[ERR] Get from key: <" + sender.FullKey + ">,  " + err.Message + " (" + (int)err.Status + ")");
+            SendRequest();
         }
 
         public ScoreData UpdateLeaderBoard(Account acc)
@@ -108,11 +109,16 @@ namespace Quiz
             ScoreDataOutput.IsLoading = true;
             ScoreDataOutput.ScoreTable = ScoreTable;
 
+            SendRequest();
+
+            return ScoreDataOutput;
+        }
+
+        private void SendRequest()
+        {
             FirebaseQueue firebaseQueue = new FirebaseQueue();
             firebaseQueue.AddQueueGet(DataBase.Child("0", true), FirebaseParam.Empty.OrderByKey().LimitToFirst(10));
             firebaseQueue.AddQueueSet(DataBase.Child("0"), ScoreTable);
-
-            return ScoreDataOutput;
         }
     }
 

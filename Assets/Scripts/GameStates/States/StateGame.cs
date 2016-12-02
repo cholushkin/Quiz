@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using System.Collections;
+using DG.Tweening;
 using Quiz;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -13,6 +14,7 @@ public class StateGame : IAppState
     public LifeProgressBar LifeProgressBar;
     public StarProgressBar StarProgressBar;
     public ClockProgressBar ClockProgressBar;
+    private bool isInputAllowed = false;
 
     public int RightAnswer;
 
@@ -22,17 +24,48 @@ public class StateGame : IAppState
         StarProgressBar.Set(0);
         GameContext.Instance.StartNewSession();
         gameObject.SetActive(true);
-        NextQuestion();
+        SetFieldInitialState();
+        NextQuestionStart();
     }
 
-    private void NextQuestion()
+    private void SetFieldInitialState()
     {
         TimeLimit = Setup.QuestionTimeLimit;
         ClockProgressBar.Set(TimeLimit);
+        foreach (var answerItem in Answers)
+            answerItem.Text.color = new Color(1,1,1,0);
+        QuestionText.color = new Color(1, 1, 1, 0);
+    }
+
+    private IEnumerator RemoveCards()
+    {
+        TimeLimit = Setup.QuestionTimeLimit;
+        ClockProgressBar.Set(TimeLimit);
+        foreach (var answerItem in Answers)
+            answerItem.Text.DOFade(0, 1f);
+        QuestionText.DOFade(0, 1f);
+        yield return new WaitForSeconds(1f);
+        NextQuestionStart();
+    }
+
+    private IEnumerator ShowCards()
+    {
+        foreach (var answerItem in Answers)
+            answerItem.Text.DOFade(1f, 1f);
+        QuestionText.DOFade(1f, 1f);
+        yield return new WaitForSeconds(1f);
+        isInputAllowed = true;
+        TimeLimit = Setup.QuestionTimeLimit;
+        ClockProgressBar.Set(TimeLimit);
+    }
+
+    private void NextQuestionStart()
+    {
+        isInputAllowed = false;
         LoadingIcon.Instance.Show(true);
         DataAccessor.Instance.GetRandomData();
-
     }
+
 
     public override void StateLeave(bool animated)
     {
@@ -46,14 +79,15 @@ public class StateGame : IAppState
             {
                 ShowQuestion(DataAccessor.Instance.Data);
             }
-        if (DataAccessor.Instance.Data == null) // we are inside question state
+        if (DataAccessor.Instance.Data == null && isInputAllowed) // we are inside question state
         {
             if (TimeLimit <= 0f)
             {
                 OnAnswerHit(-1);
                 return;
             }
-            TimeLimit -= Time.deltaTime;
+            if(!CheatMode)
+                TimeLimit -= Time.deltaTime;
             ClockProgressBar.Set(TimeLimit);
         }
 
@@ -70,7 +104,8 @@ public class StateGame : IAppState
         Answers[2].Text.text = data.Question.C;
         Answers[3].Text.text = data.Question.D;
 
-        QuestionText.text = data.Question.question;
+        QuestionText.text = data.Question.question + (CheatMode?(1+RightAnswer).ToString():"");
+        StartCoroutine(ShowCards());
     }
 
     private int ConvertAlphabet2CardId(string answer)
@@ -85,8 +120,20 @@ public class StateGame : IAppState
         return 0; // A
     }
 
+    // cheat
+    private bool CheatMode = false;
+    int clockHitCnt;
+    public void OnClockHit()
+    {
+        clockHitCnt++;
+        if (clockHitCnt >= 5)
+            CheatMode = true;
+    }
+
     public void OnAnswerHit(int cardID)
     {
+        if (!isInputAllowed)
+            return;
         if (DataAccessor.Instance.Data != null) // multiple tap check
             return;
 
@@ -118,7 +165,9 @@ public class StateGame : IAppState
             }
         }
 
-        NextQuestion();
+        isInputAllowed = false;
+        StartCoroutine(RemoveCards());
+        //NextQuestion();
     }
 
     private void FinishPlay()

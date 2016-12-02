@@ -17,6 +17,7 @@ namespace Quiz
             public int OvertimeLosses;
             public int NonPerfectWins;
             public int PerfectWins;
+            public Int64 Max;
 
             public Int64 CalcScores()
             {
@@ -24,7 +25,12 @@ namespace Quiz
                 if (gamePlayed == 0)
                     return 0;
                 float eff = (OvertimeLosses + (2 * PerfectWins + NonPerfectWins)) / (float)(2 * gamePlayed);
-                return (Int64)(eff * (NonPerfectWins + PerfectWins) * 1000);
+                var res = (Int64)(eff * (NonPerfectWins + PerfectWins) * 1000);
+                if (res > Max)
+                    Max = res;
+                if (res < Max)
+                    res = Max;
+                return res;
             }
         }
 

@@ -8,10 +8,15 @@ public class StateResults : IAppState
     public Text StatusText;
     public LeaderBoardTable LeaderBoardTbl;
 
+    public Text PlayerName;
+    public Text PlayerResult;
+
     public override void StateEnter(bool animated)
     {
         gameObject.SetActive(true);
         LoadingIcon.Instance.Show(true);
+        PlayerName.text = GameContext.Instance.CurAccount.Data.Name;
+        PlayerResult.text = GameContext.Instance.CurAccount.Data.CalcScores().ToString();
         DataAccessor.Instance.UpdateLeaderBoard(GameContext.Instance.CurAccount);
     }
 
