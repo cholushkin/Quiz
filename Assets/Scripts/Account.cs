@@ -15,15 +15,16 @@ namespace Quiz
             public string Duid;
             public string Name;
             public int OvertimeLosses;
-            public int Wins;
+            public int NonPerfectWins;
+            public int PerfectWins;
 
             public int CalcScores()
             {
-                int gamePlayed = Wins + OvertimeLosses;
+                int gamePlayed = NonPerfectWins + PerfectWins + OvertimeLosses;
                 if (gamePlayed == 0)
                     return 0;
-                float eff = (OvertimeLosses + (2 * Wins)) / (float)(2 * gamePlayed);
-                return (int)(eff * Wins * 1000);
+                float eff = (OvertimeLosses + (2 * PerfectWins + NonPerfectWins)) / (float)(2 * gamePlayed);
+                return (int)(eff * (NonPerfectWins + PerfectWins) * 1000);
             }
         }
 

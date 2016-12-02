@@ -7,9 +7,14 @@ public class GameContext : Singleton<GameContext>
 {
     public Account CurAccount;
 
-    void Update()
-    {
 
+    public int SessionLifesCount;
+    public int SessionCorrectAnswerChain;
+
+    public void StartNewSession()
+    {
+        SessionLifesCount = Setup.LifesCount;
+        SessionCorrectAnswerChain = 0;
     }
 
 

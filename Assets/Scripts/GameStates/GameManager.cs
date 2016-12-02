@@ -32,6 +32,11 @@ public class GameManager : Singleton<GameManager>
         CurMode.StateEnter(animated);
     }
 
+    public IAppState GetMode(Type mode)
+    {
+        return Modes.FirstOrDefault(s => s.GetType().Equals(mode));
+    }
+
 #region modal routines
 
     public InputWindow InputWindow;

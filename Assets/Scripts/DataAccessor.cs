@@ -202,7 +202,7 @@ namespace Quiz
             Data = DAccessor.GetData(Random.Range(0, 425));
         }
 
-#if DEBUG
+#if DEBUG1
         void OnGUI()
         {
             if (GUILayout.Button("get random question"))
