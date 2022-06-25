@@ -11,7 +11,7 @@ namespace Quiz.GUI
 
         private void Reset()
         {
-            Text = transform.FindChild("Text").GetComponent<Text>();
+            Text = transform.Find("Text").GetComponent<Text>();
         }
     }
 }

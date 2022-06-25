@@ -14,8 +14,8 @@ namespace Quiz.GUI
             for (int i = 0; i < 10; ++i)
             {
                 var child = transform.GetChild(i);
-                child.FindChild("Name").GetComponent<Text>().text = (string) sorted[i]["name"];
-                child.FindChild("Score").GetComponent<Text>().text = ((Int64) (sorted[i]["score"])).ToString();
+                child.Find("Name").GetComponent<Text>().text = (string) sorted[i]["name"];
+                child.Find("Score").GetComponent<Text>().text = ((Int64) (sorted[i]["score"])).ToString();
             }
         }
     }

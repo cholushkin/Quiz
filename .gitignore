@@ -22,3 +22,6 @@ sysinfo.txt
 
 ProjectSettings/QualitySettings.asset
 /Builds
+.vsconfig
+Logs/
+UserSettings/

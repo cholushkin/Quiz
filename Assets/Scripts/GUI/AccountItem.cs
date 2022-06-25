@@ -14,9 +14,9 @@ namespace Quiz.GUI
 
         public void Reset()
         {
-            UserName = transform.FindChild("LabelName").GetComponent<Text>();
-            UserScore = transform.FindChild("LabelScore").GetComponent<Text>();
-            CloseButton = transform.FindChild("DeleteButton").GetComponent<Button>();
+            UserName = transform.Find("LabelName").GetComponent<Text>();
+            UserScore = transform.Find("LabelScore").GetComponent<Text>();
+            CloseButton = transform.Find("DeleteButton").GetComponent<Button>();
         }
 
 
